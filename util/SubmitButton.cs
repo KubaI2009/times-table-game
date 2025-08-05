@@ -1,13 +1,19 @@
 ﻿namespace TimesTableGame.util;
 
-public class RestartButton : Button
+public class SubmitButton : Button
 {
+    private static readonly GameResult[] s_results =
+    {
+        GameResult.Failure,
+        GameResult.Success
+    };
+    
     private GameForm _master;
     
-    public RestartButton(string name, byte x, byte y, GameForm master) : base()
+    public SubmitButton(string name, byte x, byte y, GameForm master) : base()
     {
         Name = name;
-        Text = "Start";
+        Text = "Submit";
         _master = master;
         (Location, Size) = _master.GetDrawingDataForCell(x, y, 4, 2);
         BackColor = Color.Gray;
@@ -19,15 +25,9 @@ public class RestartButton : Button
 
     private void OnClick(object? sender, EventArgs? e)
     {
-        _master.ResetStates();
-        _master.MessUpNumbers();
-        _master.RenderNumbers();
+        _master.AnnounceResult(s_results[Convert.ToInt32(_master.NumbersMatching())]);
         
         Hide();
-        _master.GameSubmitButton.Show();
-        
-        _master.GameResultLabel.ShutUp();
-
-        Text = "Restart";
+        _master.GameRestartButton.Show();
     }
 }

@@ -4,6 +4,7 @@ public class TableButton : Button
 {
     private bool _state;
     private byte _messUpRange;
+    private GameForm _master;
 
     public bool State
     {
@@ -35,7 +36,9 @@ public class TableButton : Button
         
         Name = name;
         Number = number;
-        (Location, Size) = master.GetDrawingDataForCell(x, y, 1, 1);
+        _messUpRange = messUpRange;
+        _master = master;
+        (Location, Size) = _master.GetDrawingDataForCell(x, y, 1, 1);
         State = true;
         TextAlign = ContentAlignment.MiddleCenter;
         FlatStyle = FlatStyle.Flat;
@@ -69,15 +72,28 @@ public class TableButton : Button
     public void MessUp(bool display)
     {
         Random random = new Random((int) DateTime.Now.Ticks);
-        byte offset = Convert.ToByte(random.Next(1, _messUpRange));
+        byte offset = Convert.ToByte(random.Next(1, _messUpRange < 1 ? 1 : _messUpRange));
         
         offset = random.Next(1) == 0 ? Convert.ToByte(offset) : Convert.ToByte(-offset);
         
         Number += offset;
 
+        //testing purposes
+        //Number = 0;
+        
         if (display)
         {
             DisplayNumber();
         }
+    }
+
+    public void SetNumber(int number)
+    {
+        Number = number;
+    }
+
+    public void SetState(bool state)
+    {
+        State = state;
     }
 }

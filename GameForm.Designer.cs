@@ -6,8 +6,36 @@ partial class GameForm
 {
     private List<int> _metaTable = new List<int>();
     private List<TableButton> _table = new List<TableButton>();
-    private byte _messUpRange;
-    private byte _messUpCount;
+
+    public RestartButton GameRestartButton
+    {
+        get;
+        private set;
+    }
+
+    public SubmitButton GameSubmitButton
+    {
+        get;
+        private set;
+    }
+
+    public ResultLabel GameResultLabel
+    {
+        get;
+        private set;
+    }
+    
+    public byte MessUpRange
+    {
+        get;
+        private set;
+    }
+
+    public int MessUpCount
+    {
+        get;
+        private set;
+    }
     
     public int FormWidth
     {
@@ -55,6 +83,11 @@ partial class GameForm
     {
         get;
         private set;
+    }
+
+    public List<TableButton> Table
+    {
+        get => _table;
     }
 
     public int SingleCellWidth
@@ -125,8 +158,14 @@ partial class GameForm
         AddLabelsAtTheLeft();
         
         AddButtons();
+        HideNumbers("");
         
         AddRestartButton();
+        AddSubmitButton();
+        
+        GameRestartButton.Show();
+        GameSubmitButton.Hide();
+        
         AddResultLabel();
         
         ResumeLayout();
@@ -156,7 +195,7 @@ partial class GameForm
             byte y = Convert.ToByte(i / TableGridWidth + 1);
             int number = x * y;
 
-            TableButton button = new TableButton($"btn{x}Times{y}", number, _messUpRange, x, y, this);
+            TableButton button = new TableButton($"btn{x}Times{y}", number, MessUpRange, x, y, this);
             
             _metaTable.Add(number);
             _table.Add(button);
@@ -166,14 +205,117 @@ partial class GameForm
 
     private void AddRestartButton()
     {
-        Controls.Add(new RestartButton("btnRestart", 7, 11, this));
+        GameRestartButton = new RestartButton("btnRestart", 7, 11, this);
+        
+        Controls.Add(GameRestartButton);
+    }
+
+    private void AddSubmitButton()
+    {
+        GameSubmitButton = new SubmitButton("btnSubmit", 7, 11, this);
+        
+        Controls.Add(GameSubmitButton);
     }
 
     private void AddResultLabel()
     {
-        Controls.Add(new ResultLabel("lbResult", 0, 11, this));
+        GameResultLabel = new ResultLabel("lbResult", 0, 11, this);
+        
+        Controls.Add(GameResultLabel);
     }
 
+    public void DefaultNumbers()
+    {
+        for (int i = 0; i < _metaTable.Count; i++)
+        {
+            Table[i].SetNumber(_metaTable[i]);
+        }
+    }
+
+    public void MessUpNumbers()
+    {
+        DefaultNumbers();
+        
+        List<int> excluded = new List<int>();
+
+        for (int i = 0; i < MessUpCount; i++)
+        {
+            Table[RandomIndex(excluded.ToArray())].MessUp(); 
+        }
+
+        Console.WriteLine("------------");
+    }
+
+    private int RandomIndex(int[] excluded)
+    {
+        Random random = new Random((int) DateTime.Now.Ticks / 3);
+        int i = random.Next(Table.Count);
+
+        while (excluded.Contains(i))
+        {
+            i = random.Next(Table.Count);
+        }
+        
+        PrintDebugDataForIndex(i);
+
+        return i;
+    }
+
+    private void PrintDebugDataForIndex(int i)
+    {
+        int x = i % TableGridWidth + 1;
+        int y = i / TableGridWidth + 1;
+
+        Console.WriteLine($"i={i}, x={x}, y={y}");
+    }
+
+    public void RenderNumbers()
+    {
+        foreach (TableButton button in Table)
+        {
+            button.DisplayNumber();
+        }
+    }
+
+    public void HideNumbers(string disguise)
+    {
+        foreach (TableButton button in Table)
+        {
+            button.Text = disguise;
+        }
+    }
+
+    public void ResetStates()
+    {
+        foreach (TableButton button in Table)
+        {
+            button.SetState(true);
+        }
+    }
+
+    public bool NumbersMatching()
+    {
+        for (int i = 0; i < _metaTable.Count; i++)
+        {
+            if (Table[i].Number != _metaTable[i] && Table[i].State)
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    public void AnnounceResult(GameResult result)
+    {
+        foreach (TableButton button in Table)
+        {
+            button.Text = result.Symbol;
+        }
+        
+        GameResultLabel.AnnounceResult(result);
+    }
+    
     /// <summary>
     /// Method used for getting a controls location within the form and it's size.
     /// </summary>

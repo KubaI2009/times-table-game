@@ -4,8 +4,8 @@ public partial class GameForm : Form
 {
     public GameForm()
     {
-        _messUpRange = 5;
-        _messUpCount = 5;
+        MessUpRange = 5;
+        MessUpCount = 5;
         
         FormWidth = 500;
         FormHeight = 600;

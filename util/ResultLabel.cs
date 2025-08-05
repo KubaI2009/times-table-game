@@ -2,11 +2,14 @@
 
 public class ResultLabel : Label
 {
+    private GameForm _master;
+    
     public ResultLabel(string name, byte x, byte y, GameForm master) : base()
     {
         Name = name;
         Text = "";
-        (Location, Size) = master.GetDrawingDataForCell(x, y, 6, 2);
+        _master = master;
+        (Location, Size) = _master.GetDrawingDataForCell(x, y, 6, 2);
         AutoSize = false;
         Font = new Font(FontFamily.GenericSansSerif, 21);
         BackColor = Color.DarkGray;
@@ -19,7 +22,7 @@ public class ResultLabel : Label
         Text = result.Message;
     }
 
-    public void Clear()
+    public void ShutUp()
     {
         Text = "";
     }
