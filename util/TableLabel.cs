@@ -1,8 +1,8 @@
 ﻿namespace TimesTableGame.util;
 
-public class GameLabel : Label
+public class TableLabel : Label
 {
-    public GameLabel(string name, byte number, byte x, byte y, GameForm master) : base()
+    public TableLabel(string name, byte number, byte x, byte y, GameForm master) : base()
     {
         Name = name;
         Text = number.ToString();

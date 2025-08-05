@@ -4,6 +4,11 @@ namespace TimesTableGame;
 
 partial class GameForm
 {
+    private List<int> _metaTable = new List<int>();
+    private List<TableButton> _table = new List<TableButton>();
+    private byte _messUpRange;
+    private byte _messUpCount;
+    
     public int FormWidth
     {
         get;
@@ -16,6 +21,18 @@ partial class GameForm
         private set;
     }
 
+    public int TableWidth
+    {
+        get;
+        private set;
+    }
+
+    public int TableHeight
+    {
+        get;
+        private set;
+    }
+
     public byte GridWidth
     {
         get;
@@ -23,6 +40,18 @@ partial class GameForm
     }
 
     public byte GridHeight
+    {
+        get;
+        private set;
+    }
+
+    public byte TableGridWidth
+    {
+        get;
+        private set;
+    }
+
+    public byte TableGridHeight
     {
         get;
         private set;
@@ -88,42 +117,61 @@ partial class GameForm
     {
         SuspendLayout();
         
-        //resizing the client in case something went wrong
+        //customizing the form
         ClientSize = new System.Drawing.Size(FormWidth, FormHeight);
+        BackColor = Color.DarkGray;
         
         AddLabelsAtTheTop();
         AddLabelsAtTheLeft();
         
         AddButtons();
         
+        AddRestartButton();
+        AddResultLabel();
+        
         ResumeLayout();
     }
 
     private void AddLabelsAtTheTop()
     {
-        for (byte i = 1; i < GridWidth; i++)
+        for (byte i = 1; i < TableGridWidth; i++)
         {
-            Controls.Add(new GameLabel($"lbTop{i}", i, i, 0, this));
+            Controls.Add(new TableLabel($"lbTop{i}", i, i, 0, this));
         }
     }
 
     private void AddLabelsAtTheLeft()
     {
-        for (byte i = 1; i < GridHeight; i++)
+        for (byte i = 1; i < TableGridHeight; i++)
         {
-            Controls.Add(new GameLabel($"lbLeft{i}", i, 0, i, this));
+            Controls.Add(new TableLabel($"lbLeft{i}", i, 0, i, this));
         }
     }
 
     private void AddButtons()
     {
-        for (int i = 1; i < (GridWidth - 1) * (GridHeight); i++)
+        for (int i = 1; i < (TableGridWidth - 1) * (TableGridHeight); i++)
         {
-            byte x = Convert.ToByte(i % GridWidth);
-            byte y = Convert.ToByte(i / GridWidth + 1);
+            byte x = Convert.ToByte(i % TableGridWidth);
+            byte y = Convert.ToByte(i / TableGridWidth + 1);
+            int number = x * y;
+
+            TableButton button = new TableButton($"btn{x}Times{y}", number, _messUpRange, x, y, this);
             
-            Controls.Add(new GameButton($"btn{x}Times{y}", x * y, x, y, this));
+            _metaTable.Add(number);
+            _table.Add(button);
+            Controls.Add(button);
         }
+    }
+
+    private void AddRestartButton()
+    {
+        Controls.Add(new RestartButton("btnRestart", 7, 11, this));
+    }
+
+    private void AddResultLabel()
+    {
+        Controls.Add(new ResultLabel("lbResult", 0, 11, this));
     }
 
     /// <summary>
