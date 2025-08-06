@@ -25,7 +25,12 @@ public class SubmitButton : Button
 
     private void OnClick(object? sender, EventArgs? e)
     {
-        _master.AnnounceResult(s_results[Convert.ToInt32(_master.NumbersMatching())]);
+        (bool numbersMatching, int[] trueIndexes, int[] falseIndexes) = _master.NumbersMatching();
+        
+        _master.HideNumbers("");
+        _master.MarkBadTrue(trueIndexes);
+        _master.MarkBadFalse(falseIndexes);
+        _master.AnnounceResult(s_results[Convert.ToInt32(numbersMatching)]);
         
         Hide();
         _master.GameRestartButton.Show();

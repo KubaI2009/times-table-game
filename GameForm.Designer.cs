@@ -189,18 +189,20 @@ partial class GameForm
 
     private void AddButtons()
     {
-        for (int i = 1; i < (TableGridWidth - 1) * (TableGridHeight); i++)
+        for (int i = 0; i < (TableGridWidth - 1) * (TableGridHeight - 1); i++)
         {
-            byte x = Convert.ToByte(i % TableGridWidth);
-            byte y = Convert.ToByte(i / TableGridWidth + 1);
+            byte x = Convert.ToByte(i % (TableGridWidth - 1) + 1);
+            byte y = Convert.ToByte(i / (TableGridHeight - 1) + 1);
             int number = x * y;
 
             TableButton button = new TableButton($"btn{x}Times{y}", number, MessUpRange, x, y, this);
             
             _metaTable.Add(number);
-            _table.Add(button);
+            Table.Add(button);
             Controls.Add(button);
         }
+
+        //Console.WriteLine(Table.Count);
     }
 
     private void AddRestartButton()
@@ -243,7 +245,7 @@ partial class GameForm
             Table[RandomIndex(excluded.ToArray())].MessUp(); 
         }
 
-        Console.WriteLine("------------");
+        //Console.WriteLine("------------");
     }
 
     private int RandomIndex(int[] excluded)
@@ -256,15 +258,15 @@ partial class GameForm
             i = random.Next(Table.Count);
         }
         
-        PrintDebugDataForIndex(i);
+        //PrintDebugDataForIndex(i);
 
         return i;
     }
 
     private void PrintDebugDataForIndex(int i)
     {
-        int x = i % TableGridWidth + 1;
-        int y = i / TableGridWidth + 1;
+        int x = i % (TableGridWidth - 1) + 1;
+        int y = i / (TableGridHeight - 1) + 1;
 
         Console.WriteLine($"i={i}, x={x}, y={y}");
     }
@@ -293,27 +295,52 @@ partial class GameForm
         }
     }
 
-    public bool NumbersMatching()
+    public (bool result, int[] trueIndexes, int[] falseIndexes) NumbersMatching()
     {
+        List<int> trueIndexes = new List<int>();
+        List<int> falseIndexes = new List<int>();
+        bool result = true;
+        
         for (int i = 0; i < _metaTable.Count; i++)
         {
-            if (Table[i].Number != _metaTable[i] && Table[i].State)
+            if ((Table[i].Number != _metaTable[i] && Table[i].State))
             {
-                return false;
+                falseIndexes.Add(i);
+                result = false;
+                continue;
+            }
+
+            if ((Table[i].Number == _metaTable[i] && !Table[i].State))
+            {
+                trueIndexes.Add(i);
+                result = false;
             }
         }
         
-        return true;
+        return (result, trueIndexes.ToArray(), falseIndexes.ToArray());
     }
 
     public void AnnounceResult(GameResult result)
     {
-        foreach (TableButton button in Table)
-        {
-            button.Text = result.Symbol;
-        }
-        
         GameResultLabel.AnnounceResult(result);
+    }
+
+    public void MarkBadTrue(int[] indexes)
+    {
+        foreach (int i in indexes)
+        {
+            Table[i].BackColor = Color.YellowGreen;
+            Table[i].Text = Table[i].Number.ToString();
+        }
+    }
+
+    public void MarkBadFalse(int[] indexes)
+    {
+        foreach (int i in indexes)
+        {
+            Table[i].BackColor = Color.Orange;
+            Table[i].Text = Table[i].Number.ToString();
+        }
     }
     
     /// <summary>
